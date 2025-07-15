@@ -8,12 +8,12 @@ import { generateUUID } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
 
 interface ChatProps {
-  id: string;
+  chatId: string;
   initialMessages: Array<UIMessage>;
   isReadonly: boolean;
 }
 
-export function Chat({ id, initialMessages, isReadonly }: ChatProps) {
+export function Chat({ chatId, initialMessages, isReadonly }: ChatProps) {
   const {
     messages,
     setMessages,
@@ -24,12 +24,17 @@ export function Chat({ id, initialMessages, isReadonly }: ChatProps) {
     stop,
     reload,
   } = useChat({
-    id,
+    id: chatId,
     initialMessages,
     experimental_throttle: 0,
     sendExtraMessageFields: true,
+    experimental_prepareRequestBody: body => ({
+      id: chatId,
+      message: body.messages.at(-1),
+    }),
     generateId: generateUUID,
-    onError: () => {
+    onError: error => {
+      console.error(error);
       toast.error('An error occurred, please try again!');
     },
   });
@@ -38,7 +43,7 @@ export function Chat({ id, initialMessages, isReadonly }: ChatProps) {
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
         <Messages
-          chatId={id}
+          chatId={chatId}
           status={status}
           messages={messages}
           setMessages={setMessages}

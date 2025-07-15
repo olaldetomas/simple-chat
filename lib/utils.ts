@@ -1,6 +1,13 @@
-import type { CoreAssistantMessage, CoreToolMessage, UIMessage } from 'ai';
+import type {
+  CoreAssistantMessage,
+  CoreToolMessage,
+  Message,
+  UIMessage,
+} from 'ai';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+
+export const isProductionEnvironment = process.env.NODE_ENV === 'production';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -36,10 +43,7 @@ export function getLocalStorage(key: string) {
 }
 
 export function generateUUID(): string {
-  return (
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15)
-  );
+  return crypto.randomUUID();
 }
 
 type ResponseMessageWithoutId = CoreToolMessage | CoreAssistantMessage;
@@ -70,43 +74,20 @@ export function formatDate(date: Date): string {
   });
 }
 
-export function formatRelativeTime(date: Date): string {
-  if (!date) return '';
+export function convertDBMessagesToUIMessages(dbMessages: any[]): UIMessage[] {
+  return dbMessages.map(dbMessage => {
+    // Ensure parts is an array
+    const parts = Array.isArray(dbMessage.parts) ? dbMessage.parts : [];
 
-  const now = new Date();
-  const inputDate = new Date(date);
-  const diff = now.getTime() - inputDate.getTime();
+    // Convert parts array to content string
+    const content = parts.map((part: any) => part.text || '').join(' ');
 
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  // Check if the date is today
-  const isToday = now.toDateString() === inputDate.toDateString();
-
-  // Check if the date is from this year
-  const isThisYear = now.getFullYear() === inputDate.getFullYear();
-
-  if (isToday) {
-    if (seconds < 60) {
-      return `${seconds} sec ago`;
-    } else if (minutes < 60) {
-      return `${minutes} min ago`;
-    } else {
-      return `${hours} hr ago`;
-    }
-  } else if (isThisYear) {
-    // If within this year but not today, display day and month
-    return inputDate.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-    });
-  } else {
-    // If not this year, display day, month and 2-digit year
-    return inputDate.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: '2-digit',
-    });
-  }
+    return {
+      id: dbMessage.id,
+      role: dbMessage.role,
+      content,
+      parts,
+      createdAt: dbMessage.createdAt,
+    };
+  });
 }
