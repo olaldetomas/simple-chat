@@ -6,6 +6,8 @@ import { MultimodalInput } from '@/components/multimodal-input';
 import { UIMessage } from 'ai';
 import { generateUUID } from '@/lib/utils';
 import { useChat } from '@ai-sdk/react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface ChatProps {
   chatId: string;
@@ -14,6 +16,9 @@ interface ChatProps {
 }
 
 export function Chat({ chatId, initialMessages, isReadonly }: ChatProps) {
+  const router = useRouter();
+  const [hasRedirected, setHasRedirected] = useState(false);
+  
   const {
     messages,
     setMessages,
@@ -33,6 +38,13 @@ export function Chat({ chatId, initialMessages, isReadonly }: ChatProps) {
       message: body.messages.at(-1),
     }),
     generateId: generateUUID,
+    onFinish() {
+      // Redirect to /chat/[id] when user sends their first message
+      if (initialMessages.length === 0 && !hasRedirected) {
+        setHasRedirected(true);
+        router.push(`/chat/${chatId}`);
+      }
+    },
     onError: error => {
       console.error(error);
       toast.error('An error occurred, please try again!');

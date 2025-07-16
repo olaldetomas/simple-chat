@@ -1,7 +1,7 @@
 'use client';
 
 import { SidebarHistory } from '@/components/sidebar-history';
-import { Sidebar, SidebarContent } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarRail } from '@/components/ui/sidebar';
 
 export function AppSidebar() {
   return (
@@ -9,6 +9,7 @@ export function AppSidebar() {
       <SidebarContent className="pt-4">
         <SidebarHistory />
       </SidebarContent>
+      <SidebarRail />
     </Sidebar>
   );
 }

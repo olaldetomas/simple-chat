@@ -3,7 +3,6 @@ import { generateUUID } from '@/lib/utils';
 import { NavUser } from '@/components/nav-user';
 import { auth } from './(auth)/auth';
 import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarToggle } from '@/components/sidebar-toggle';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 export default async function Page() {
@@ -15,8 +14,7 @@ export default async function Page() {
       <AppSidebar />
       <SidebarInset>
         <div className="flex flex-col h-dvh w-full">
-          <header className="flex items-center justify-between py-4 px-6">
-            <SidebarToggle />
+          <header className="flex items-center justify-end py-4 px-6">
             {session?.user && <NavUser user={session.user} />}
           </header>
 
